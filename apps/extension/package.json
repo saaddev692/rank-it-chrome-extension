@@ -1,0 +1,18 @@
+{
+  "name": "@oep/extension",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@oep/shared": "workspace:*",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/chrome": "0.3.7",
+    "happy-dom": "21.0.4",
+    "vite": "8.3.7"
+  }
+}

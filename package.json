@@ -1,0 +1,32 @@
+{
+  "name": "order-email-parser",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "pnpm --filter @oep/extension build",
+    "dev:server": "pnpm --filter @oep/server dev",
+    "start:server": "pnpm --filter @oep/server start",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "eval:live": "pnpm --filter @oep/server eval:live",
+    "lint": "oxlint --deny-warnings",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check",
+    "typecheck": "pnpm -r typecheck",
+    "gen:key": "node scripts/gen-extension-key.mjs",
+    "check": "pnpm lint && pnpm fmt:check && pnpm typecheck && pnpm test",
+    "send:test-emails": "pnpm --filter @oep/test-emails send",
+    "test:mutations": "node scripts/mutation-check.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.6",
+    "oxfmt": "0.78.0",
+    "oxlint": "1.93.0",
+    "typescript": "7.0.2",
+    "vitest": "5.1.0"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "packageManager": "pnpm@11.20.0"
+}

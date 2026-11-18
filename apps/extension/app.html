@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="referrer" content="no-referrer" />
+    <title>Order Email Parser</title>
+    <link rel="stylesheet" href="./src/app.css" />
+  </head>
+  <body>
+    <header class="bar">
+      <h1>Order Email Parser</h1>
+      <div class="account">
+        <span id="account-email" class="muted"></span>
+        <button id="sign-in" type="button" hidden>Sign in with Google</button>
+        <button id="sign-out" type="button" class="ghost" hidden>Sign out</button>
+      </div>
+    </header>
+
+    <main>
+      <p id="status" class="status" role="status" aria-live="polite"></p>
+
+      <div id="signed-in" hidden>
+        <section class="panel">
+          <div class="query">
+            <span class="muted small"
+              >Gmail search query (fixed; used by auto-check and Search Gmail)</span
+            >
+            <code id="query" class="query-text"></code>
+          </div>
+
+          <div class="watch">
+            <label class="toggle">
+              <input id="watch-enabled" type="checkbox" />
+              <span>Auto-check new mail every minute and parse matches</span>
+            </label>
+            <button id="check-now" type="button" class="ghost small">Check now</button>
+          </div>
+          <p id="watch-status" class="muted small"></p>
+        </section>
+
+        <section>
+          <div class="row">
+            <h2>Find and parse order emails</h2>
+            <button id="search" type="button">Search Gmail</button>
+          </div>
+        </section>
+
+        <section>
+          <div class="row">
+            <h2>History <span id="history-count" class="muted small"></span></h2>
+            <button id="refresh-history" type="button" class="ghost small">Refresh</button>
+          </div>
+          <div id="history" class="history"></div>
+        </section>
+      </div>
+    </main>
+
+    <script type="module" src="./src/app.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "name": "@oep/test-emails",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "send": "node --env-file-if-exists=.env scripts/send.ts",
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@oep/shared": "workspace:*",
+    "nodemailer": "10.4.0"
+  },
+  "devDependencies": {
+    "@types/nodemailer": "8.0.2"
+  }
+}

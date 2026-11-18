@@ -1,0 +1,29 @@
+{
+  "retailer": "Selfridges",
+  "orderNumber": "600123456",
+  "orderDate": "2026-09-14",
+  "currency": "GBP",
+  "customerName": "John",
+  "shipping": 0,
+  "tax": 0,
+  "items": [
+    {
+      "brand": "Acne Studios",
+      "name": "Oversized wool-blend coat",
+      "colour": "Black",
+      "size": "48",
+      "quantity": 1,
+      "price": 1250,
+      "imageUrl": "https://placehold.co/390x520/222222/ffffff/png?text=Wool+Coat"
+    },
+    {
+      "brand": "Common Projects",
+      "name": "Achilles low-top leather trainers",
+      "colour": "White",
+      "size": "EU 43 / UK 9",
+      "quantity": 2,
+      "price": 395,
+      "imageUrl": "https://placehold.co/390x520/fafafa/333333/png?text=Achilles+Low"
+    }
+  ]
+}

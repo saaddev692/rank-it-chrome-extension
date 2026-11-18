@@ -1,0 +1,629 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <style>
+      :root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}
+    </style>
+  </head>
+  <body>
+    <title>Order Email Parser Setup</title>
+    <meta name="claude:viewport-fit-sides" content="cover" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    />
+    <style>
+      /* Layout: one reading column with a step rail; each step = number in the rail, content beside it. */
+      :root {
+        --paper: #f5f7f9;
+        --surface: #ffffff;
+        --ink: #16202b;
+        --muted: #586473;
+        --line: #dce2e8;
+        --accent: #0d6b62;
+        --accent-soft: #e2f1ee;
+        --code-bg: #eef2f5;
+        --warn: #8a4b06;
+        --warn-soft: #fbf0e1;
+        --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+        --body: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+        --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        --s-1: 0.8125rem;
+        --s0: 1rem;
+        --s1: 1.1875rem;
+        --s2: 1.5rem;
+        --s3: 2.25rem;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          --paper: #11161c;
+          --surface: #182029;
+          --ink: #e6ebf0;
+          --muted: #97a3b0;
+          --line: #2a333e;
+          --accent: #4cc0b0;
+          --accent-soft: #15302d;
+          --code-bg: #1d2731;
+          --warn: #f0b46a;
+          --warn-soft: #2d2216;
+          color-scheme: dark;
+        }
+      }
+      :root[data-theme="dark"] {
+        --paper: #11161c;
+        --surface: #182029;
+        --ink: #e6ebf0;
+        --muted: #97a3b0;
+        --line: #2a333e;
+        --accent: #4cc0b0;
+        --accent-soft: #15302d;
+        --code-bg: #1d2731;
+        --warn: #f0b46a;
+        --warn-soft: #2d2216;
+        color-scheme: dark;
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font: 400 var(--s0)/1.6 var(--body);
+        padding-left: max(16px, env(safe-area-inset-left, 0px));
+        padding-right: max(16px, env(safe-area-inset-right, 0px));
+      }
+      .page {
+        max-width: 46rem;
+        margin: 0 auto;
+        padding-block: 3rem 4rem;
+        display: flex;
+        flex-direction: column;
+        gap: 3rem;
+      }
+      h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; line-height: 1.15; }
+      h1 { font-size: var(--s3); font-weight: 700; letter-spacing: -0.01em; }
+      h2 { font-size: var(--s2); font-weight: 700; }
+      h3 { font-size: var(--s1); font-weight: 600; }
+      p { margin: 0; max-width: 65ch; }
+      a { color: var(--accent); text-underline-offset: 2px; }
+      a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+      code, pre, kbd { font-family: var(--mono); font-size: 0.875em; }
+      :not(pre) > code {
+        background: var(--code-bg);
+        padding: 0.1em 0.35em;
+        border-radius: 4px;
+        overflow-wrap: anywhere;
+      }
+      .eyebrow {
+        font: 600 var(--s-1)/1 var(--body);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--accent);
+      }
+      .muted { color: var(--muted); }
+      section { display: flex; flex-direction: column; gap: 1rem; }
+
+      header { display: flex; flex-direction: column; gap: 0.875rem; }
+      .lede { font-size: var(--s1); color: var(--muted); }
+
+      /* Flow strip: the real data path, shown once */
+      .flow {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+        font: 500 var(--s-1)/1.3 var(--mono);
+        color: var(--muted);
+      }
+      .flow span { background: var(--surface); border: 1px solid var(--line); padding: 0.35rem 0.6rem; border-radius: 6px; color: var(--ink); }
+      .flow i { font-style: normal; color: var(--accent); }
+
+      /* Needs table */
+      .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+      table { border-collapse: collapse; width: 100%; min-width: 34rem; font-size: 0.9375rem; }
+      th, td { text-align: left; vertical-align: top; padding: 0.7rem 0.9rem; border-bottom: 1px solid var(--line); }
+      tr:last-child td { border-bottom: 0; }
+      th { font: 600 var(--s-1)/1.3 var(--body); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); background: var(--code-bg); }
+      .secret { font: 600 0.75rem/1 var(--body); color: var(--warn); background: var(--warn-soft); padding: 0.2rem 0.45rem; border-radius: 999px; white-space: nowrap; }
+
+      /* Steps */
+      .steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2.25rem; counter-reset: step; }
+      .step { display: grid; grid-template-columns: 2.5rem minmax(0, 1fr); gap: 0 1rem; counter-increment: step; }
+      .step::before {
+        content: counter(step);
+        font: 700 1.125rem/2.25rem var(--display);
+        width: 2.25rem; height: 2.25rem;
+        text-align: center;
+        border-radius: 50%;
+        color: var(--accent);
+        background: var(--accent-soft);
+        font-variant-numeric: tabular-nums;
+      }
+      .step-body { display: flex; flex-direction: column; gap: 0.75rem; min-width: 0; }
+      .step-body ul, .step-body ol { margin: 0; padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.35rem; max-width: 65ch; }
+      .where { font-size: var(--s-1); color: var(--muted); }
+
+      /* Code blocks */
+      .code {
+        position: relative;
+        background: var(--code-bg);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+      }
+      .code pre {
+        margin: 0;
+        padding: 0.85rem 1rem;
+        padding-right: 4.75rem;
+        overflow-x: auto;
+        line-height: 1.55;
+        color: var(--ink);
+      }
+      .code .label {
+        display: block;
+        padding: 0.45rem 1rem 0;
+        font: 500 0.75rem/1.2 var(--mono);
+        color: var(--muted);
+      }
+      .copy {
+        position: absolute;
+        top: 0.5rem; right: 0.5rem;
+        font: 500 0.75rem/1 var(--body);
+        color: var(--accent);
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 0.4rem 0.6rem;
+        cursor: pointer;
+      }
+      .copy:hover { border-color: var(--accent); }
+      .c { color: var(--muted); }
+
+      .note {
+        border-left: 3px solid var(--warn);
+        background: var(--warn-soft);
+        padding: 0.75rem 1rem;
+        border-radius: 0 6px 6px 0;
+        font-size: 0.9375rem;
+      }
+      .note p { max-width: none; }
+
+      .checks { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 0.75rem; }
+      .check { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 0.9rem 1rem; display: flex; flex-direction: column; gap: 0.35rem; }
+      .check strong { font-family: var(--display); font-weight: 600; font-size: 1.0625rem; }
+      .check p { font-size: 0.9375rem; color: var(--muted); }
+
+      .fixes { display: flex; flex-direction: column; border-top: 1px solid var(--line); }
+      .fix { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 1rem; padding: 0.8rem 0; border-bottom: 1px solid var(--line); font-size: 0.9375rem; }
+      .fix b { font-weight: 600; }
+      @media (max-width: 560px) {
+        .fix { grid-template-columns: 1fr; gap: 0.25rem; }
+        .step { grid-template-columns: 2.25rem minmax(0, 1fr); gap: 0 0.75rem; }
+        h1 { font-size: 1.875rem; }
+      }
+      footer { font-size: var(--s-1); color: var(--muted); border-top: 1px solid var(--line); padding-top: 1rem; }
+      @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+    </style>
+
+    <div class="page">
+      <header>
+        <span class="eyebrow">Setup guide</span>
+        <h1>Order Email Parser</h1>
+        <p class="lede">
+          A Chrome extension that reads order-confirmation emails from Gmail (read-only), turns each
+          one into JSON with Gemini, and keeps a history per Gmail account. These steps take you
+          from a fresh machine to orders appearing in the extension. Plan on about 30 minutes.
+        </p>
+        <div class="flow" aria-label="How data flows">
+          <span>Gmail</span><i>→</i><span>Chrome extension</span><i>→</i
+          ><span>Local proxy :8787</span><i>→</i><span>Gemini</span><i>→</i
+          ><span>SQLite history</span>
+        </div>
+      </header>
+
+      <section aria-labelledby="needs">
+        <h2 id="needs">What you need before starting</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Used for</th>
+                <th>Where to get it</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Node.js 24+ and pnpm 11+</td>
+                <td>Running the project</td>
+                <td>
+                  <a href="https://nodejs.org" target="_blank" rel="noopener">nodejs.org</a>, then
+                  <code>corepack enable</code>
+                </td>
+              </tr>
+              <tr>
+                <td>Google Chrome 116+</td>
+                <td>The extension (Chrome only; Edge and Brave won't work)</td>
+                <td>
+                  <a href="https://www.google.com/chrome/" target="_blank" rel="noopener"
+                    >google.com/chrome</a
+                  >
+                </td>
+              </tr>
+              <tr>
+                <td>A Gmail account</td>
+                <td>The inbox the extension reads</td>
+                <td>Any personal Gmail</td>
+              </tr>
+              <tr>
+                <td>Google Cloud project</td>
+                <td>Gmail sign-in (OAuth)</td>
+                <td>
+                  <a href="https://console.cloud.google.com/" target="_blank" rel="noopener"
+                    >console.cloud.google.com</a
+                  >, created in step 3
+                </td>
+              </tr>
+              <tr>
+                <td>Gemini API key <span class="secret">secret</span></td>
+                <td>Parsing emails into JSON</td>
+                <td>
+                  <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener"
+                    >aistudio.google.com/apikey</a
+                  >
+                </td>
+              </tr>
+              <tr>
+                <td>Gmail App Password <span class="secret">secret</span></td>
+                <td>Sending mock order emails for testing</td>
+                <td>
+                  <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener"
+                    >myaccount.google.com/apppasswords</a
+                  >
+                  (needs 2-Step Verification)
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="muted">
+          The two secrets go only into local <code>.env</code> files, which are ignored by git.
+          Never paste them into chat or commit them.
+        </p>
+      </section>
+
+      <section aria-labelledby="steps">
+        <h2 id="steps">Steps</h2>
+        <ol class="steps">
+          <li class="step">
+            <div class="step-body">
+              <h3>Install the project</h3>
+              <p>Open a terminal in the project folder and run:</p>
+              <div class="code">
+                <button class="copy" type="button">Copy</button>
+                <pre><code>pnpm install
+cp apps/server/.env.example apps/server/.env
+cp apps/extension/.env.example apps/extension/.env
+cp packages/test-emails/.env.example packages/test-emails/.env</code></pre>
+              </div>
+            </div>
+          </li>
+
+          <li class="step">
+            <div class="step-body">
+              <h3>Fix the extension's ID</h3>
+              <p>
+                Google sign-in and the local proxy are both tied to one extension ID, so it has to
+                stay the same. Generate it once:
+              </p>
+              <div class="code">
+                <button class="copy" type="button">Copy</button>
+                <pre><code>pnpm gen:key --write</code></pre>
+              </div>
+              <p>
+                Write down the <strong>Extension ID</strong> it prints (32 letters, a–p). Steps 3
+                and 4 need it. Keep the generated <code>extension-key.pem</code> private.
+              </p>
+            </div>
+          </li>
+
+          <li class="step">
+            <div class="step-body">
+              <h3>Set up Google sign-in</h3>
+              <p class="where">
+                In
+                <a href="https://console.cloud.google.com/" target="_blank" rel="noopener"
+                  >Google Cloud Console</a
+                >, with your project selected:
+              </p>
+              <ol>
+                <li>
+                  <strong>APIs &amp; Services → Library</strong> → search "Gmail API" →
+                  <strong>Enable</strong>.
+                </li>
+                <li>
+                  <strong>Google Auth Platform → Branding</strong>: app name
+                  <em>Order Email Parser</em>, your support email.
+                </li>
+                <li>
+                  <strong>Audience</strong>: choose <strong>External</strong>, leave it in
+                  <strong>Testing</strong>, and under <strong>Test users</strong> add the Gmail
+                  address you'll use.
+                </li>
+                <li>
+                  <strong>Data Access → Add or remove scopes</strong>: add
+                  <code>https://www.googleapis.com/auth/gmail.readonly</code>.
+                </li>
+                <li>
+                  <strong>Clients → Create client</strong>: type <strong>Chrome Extension</strong>,
+                  Item ID = the Extension ID from step 2. Copy the Client ID.
+                </li>
+              </ol>
+              <div class="code">
+                <span class="label">apps/extension/.env</span
+                ><button class="copy" type="button">Copy</button>
+                <pre><code>OAUTH_CLIENT_ID=1234567890-xxxxxxxx.apps.googleusercontent.com</code></pre>
+              </div>
+            </div>
+          </li>
+
+          <li class="step">
+            <div class="step-body">
+              <h3>Add the Gemini key</h3>
+              <p>
+                Create a key at
+                <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener"
+                  >aistudio.google.com/apikey</a
+                >
+                and fill in:
+              </p>
+              <div class="code">
+                <span class="label">apps/server/.env</span
+                ><button class="copy" type="button">Copy</button>
+                <pre><code>GEMINI_API_KEY=your-gemini-key
+ALLOWED_ORIGINS=chrome-extension://&lt;your Extension ID&gt;</code></pre>
+              </div>
+              <p>
+                Optional check that the key works. It parses three built-in sample emails and prints
+                PASS or FAIL for each:
+              </p>
+              <div class="code">
+                <button class="copy" type="button">Copy</button>
+                <pre><code>pnpm eval:live</code></pre>
+              </div>
+            </div>
+          </li>
+
+          <li class="step">
+            <div class="step-body">
+              <h3>Start the local proxy</h3>
+              <div class="code">
+                <button class="copy" type="button">Copy</button>
+                <pre><code>pnpm dev:server</code></pre>
+              </div>
+              <p>
+                It should print <code>Order parser proxy on http://127.0.0.1:8787</code>. Leave this
+                terminal open while you use the extension.
+              </p>
+            </div>
+          </li>
+
+          <li class="step">
+            <div class="step-body">
+              <h3>Build and load the extension</h3>
+              <div class="code">
+                <button class="copy" type="button">Copy</button>
+                <pre><code>pnpm build</code></pre>
+              </div>
+              <ol>
+                <li>
+                  Open <code>chrome://extensions</code> and switch on
+                  <strong>Developer mode</strong> (top right).
+                </li>
+                <li>
+                  Click <strong>Load unpacked</strong> and choose the folder
+                  <code>apps/extension/dist</code>.
+                </li>
+                <li>Check that the ID on the card matches your Extension ID.</li>
+                <li>
+                  Pin the extension, click its icon, and choose
+                  <strong>Sign in with Google</strong>. Approve "Read your email messages and
+                  settings".
+                </li>
+              </ol>
+            </div>
+          </li>
+
+          <li class="step">
+            <div class="step-body">
+              <h3>Send yourself mock order emails</h3>
+              <p>
+                Real orders need real payments, so the project sends realistic Mytheresa, Selfridges
+                and Revolve confirmations to your inbox instead. Turn on 2-Step Verification, create
+                an App Password, then fill in:
+              </p>
+              <div class="code">
+                <span class="label">packages/test-emails/.env</span
+                ><button class="copy" type="button">Copy</button>
+                <pre><code>SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_SECURE=true
+SMTP_USER=sender@gmail.com
+SMTP_PASS=your16charapppassword</code></pre>
+              </div>
+              <div class="code">
+                <button class="copy" type="button">Copy</button>
+                <pre><code>pnpm send:test-emails --to you@gmail.com</code></pre>
+              </div>
+              <p>
+                Each email has a fresh order number and <code>[TEST ORDER]</code> at the end of its
+                subject. Send them to the same Gmail address you signed in with.
+              </p>
+            </div>
+          </li>
+
+          <li class="step">
+            <div class="step-body">
+              <h3>See it work</h3>
+              <p>In the extension tab you can do either of these:</p>
+              <ul>
+                <li>
+                  Tick <strong>Auto-check new mail every minute</strong> <em>before</em> sending the
+                  test emails. Within about a minute of them arriving, they appear in
+                  <strong>History</strong>, marked <em>auto</em>.
+                </li>
+                <li>
+                  Click <strong>Search Gmail</strong> at any time. Every matching email not already
+                  in History is parsed right away.
+                </li>
+              </ul>
+              <p>
+                Each History entry shows the products and, under <strong>JSON</strong>, the full
+                record.
+              </p>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <section aria-labelledby="output">
+        <h2 id="output">What each parsed item looks like</h2>
+        <div class="code">
+          <span class="label">order.items[] (one per product)</span
+          ><button class="copy" type="button">Copy</button>
+          <pre><code>{
+  "name": "Rosalind Mini Dress",
+  "brand": "Lovers and Friends",
+  "colour": "Black",
+  "size": "S",
+  "quantity": 1,
+  "price": 228,
+  "currency": "USD",
+  "imageUrl": "https://placehold.co/420x560/111111/ffffff/png?text=Rosalind+Dress"
+}</code></pre>
+        </div>
+        <p class="muted">
+          Each order also has the retailer, order number, date and total. <code>price</code> is what
+          was actually paid (the sale price if discounted). Any field the email doesn't contain is
+          <code>null</code> rather than a guess.
+        </p>
+      </section>
+
+      <section aria-labelledby="rules">
+        <h2 id="rules">Good to know</h2>
+        <div class="checks">
+          <div class="check">
+            <strong>Only order emails are read</strong>
+            <p>
+              An email is parsed only if it comes from mytheresa.com, selfridges.com or revolve.com,
+              or has <code>[TEST ORDER]</code> in its subject. Everything else in Gmail is ignored.
+            </p>
+          </div>
+          <div class="check">
+            <strong>Read-only Gmail access</strong>
+            <p>
+              The extension can't send, delete or change mail. Chrome keeps the sign-in; tokens are
+              never saved by the extension.
+            </p>
+          </div>
+          <div class="check">
+            <strong>No back-fill</strong>
+            <p>
+              Auto-check only picks up mail that arrives after it's switched on. Use Search Gmail
+              for older emails.
+            </p>
+          </div>
+          <div class="check">
+            <strong>Weekly sign-in</strong>
+            <p>
+              While the Google app is in Testing mode, Google asks you to sign in again about every
+              7 days.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="trouble">
+        <h2 id="trouble">If something goes wrong</h2>
+        <div class="fixes">
+          <div class="fix">
+            <b>"Access blocked: app has not completed verification"</b
+            ><span
+              >Add your Gmail address under <strong>Audience → Test users</strong> (step 3).</span
+            >
+          </div>
+          <div class="fix">
+            <b>Sign-in fails with "bad client id"</b
+            ><span
+              >The OAuth client must be type Chrome Extension, and its Item ID must equal the ID
+              shown on <code>chrome://extensions</code>.</span
+            >
+          </div>
+          <div class="fix">
+            <b>"The proxy rejected this extension"</b
+            ><span
+              ><code>ALLOWED_ORIGINS</code> must be exactly
+              <code>chrome-extension://&lt;Extension ID&gt;</code>. Restart the proxy after
+              editing.</span
+            >
+          </div>
+          <div class="fix">
+            <b>"Cannot reach the parsing proxy"</b
+            ><span>Start it with <code>pnpm dev:server</code> and keep that terminal open.</span>
+          </div>
+          <div class="fix">
+            <b>"Gemini returned HTTP 400: API key not valid"</b
+            ><span
+              >Fix <code>GEMINI_API_KEY</code> in <code>apps/server/.env</code> and restart the
+              proxy.</span
+            >
+          </div>
+          <div class="fix">
+            <b>"N emails in the queue, not parsed yet"</b
+            ><span
+              >The proxy was down or Gemini was busy. They're tried again every minute, up to 5
+              times. After that, click Search Gmail.</span
+            >
+          </div>
+          <div class="fix">
+            <b>Test emails never appear</b
+            ><span
+              >Check Gmail's Spam folder and mark them "Not spam". The subject must end with
+              <code>[TEST ORDER]</code>.</span
+            >
+          </div>
+          <div class="fix">
+            <b><code>send:test-emails</code> says "could not log in"</b
+            ><span
+              >Use a Gmail App Password, not your normal password. 2-Step Verification must be
+              on.</span
+            >
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        Full details, including the manual test plan and every testing method, are in
+        <code>README.md</code> and <code>TESTING.md</code> in the project folder.
+      </footer>
+    </div>
+
+    <script>
+      document.querySelectorAll(".copy").forEach((button) => {
+        button.addEventListener("click", async () => {
+          const text = button.parentElement.querySelector("pre").innerText;
+          try {
+            await navigator.clipboard.writeText(text);
+            button.textContent = "Copied";
+          } catch {
+            button.textContent = "Select & copy";
+          }
+          setTimeout(() => { button.textContent = "Copy"; }, 1600);
+        });
+      });
+    </script>
+  </body>
+</html>

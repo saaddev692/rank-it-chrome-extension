@@ -1,0 +1,21 @@
+{
+  "name": "@oep/server",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --env-file-if-exists=.env --watch src/index.ts",
+    "start": "node --env-file-if-exists=.env src/index.ts",
+    "eval:live": "node --env-file-if-exists=.env scripts/eval-live.ts",
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@hono/node-server": "2.1.6",
+    "@oep/shared": "workspace:*",
+    "hono": "4.13.17",
+    "node-html-parser": "9.0.7",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@oep/test-emails": "workspace:*"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "retailer": "Revolve",
+  "orderNumber": "RV7781234",
+  "orderDate": "2026-10-27",
+  "currency": "USD",
+  "customerName": "Jane",
+  "shipping": 0,
+  "tax": 27.51,
+  "items": [
+    {
+      "brand": "Lovers and Friends",
+      "name": "Rosalind Mini Dress",
+      "colour": "Black",
+      "size": "S",
+      "quantity": 1,
+      "price": 228,
+      "imageUrl": "https://placehold.co/420x560/111111/ffffff/png?text=Rosalind+Dress"
+    },
+    {
+      "brand": "superdown",
+      "name": "Celine Heeled Sandal",
+      "colour": "Gold",
+      "size": "7.5",
+      "quantity": 1,
+      "price": 61.6,
+      "originalPrice": 88,
+      "imageUrl": "https://placehold.co/420x560/c9a648/ffffff/png?text=Celine+Sandal"
+    }
+  ]
+}

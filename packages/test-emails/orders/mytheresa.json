@@ -1,0 +1,29 @@
+{
+  "retailer": "Mytheresa",
+  "orderNumber": "MYT-48213977",
+  "orderDate": "2026-10-02",
+  "currency": "EUR",
+  "customerName": "Jane Doe",
+  "shipping": 0,
+  "tax": 0,
+  "items": [
+    {
+      "brand": "Bottega Veneta",
+      "name": "Andiamo Small leather tote",
+      "colour": "Black",
+      "size": "One size",
+      "quantity": 1,
+      "price": 3900,
+      "imageUrl": "https://placehold.co/440x600/1a1a1a/ffffff/png?text=Andiamo+Tote"
+    },
+    {
+      "brand": "The Row",
+      "name": "Tavi cashmere sweater",
+      "colour": "Ivory",
+      "size": "S",
+      "quantity": 1,
+      "price": 1650,
+      "imageUrl": "https://placehold.co/440x600/f2ede4/333333/png?text=Tavi+Sweater"
+    }
+  ]
+}
